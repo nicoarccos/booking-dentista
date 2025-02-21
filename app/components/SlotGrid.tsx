@@ -1,29 +1,21 @@
 import React, { useState } from 'react';
-
-interface Slot {
-  id: number;
-  date: string;
-  day: string;
-  time_slot: string;
-  booked: boolean;
-}
+import { AvailableSlot } from './types'; // Import AvailableSlot
 
 interface SlotGridProps {
-  slots: Slot[];
-  selectedSlot: Slot | null;
-  onSelectSlot: (slot: Slot) => void;
+  slots: AvailableSlot[];  // ✅ Change from Slot[] to AvailableSlot[]
+  selectedSlot: AvailableSlot | null;  // ✅ Change from Slot to AvailableSlot
+  onSelectSlot: (slot: AvailableSlot) => void;  // ✅ Change type
 }
 
 const SlotGrid: React.FC<SlotGridProps> = ({ slots, selectedSlot, onSelectSlot }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const slotsPerPage = 30;
 
-  // Calculate the slots to display for the current page
+  // Calculate slots to display
   const startIndex = (currentPage - 1) * slotsPerPage;
   const endIndex = startIndex + slotsPerPage;
   const currentSlots = slots.slice(startIndex, endIndex);
 
-  // Calculate total pages
   const totalPages = Math.ceil(slots.length / slotsPerPage);
 
   const handleNextPage = () => {
