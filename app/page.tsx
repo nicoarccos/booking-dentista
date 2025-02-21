@@ -2,7 +2,7 @@ import CheckAppointments from "./components/CheckAppointment";
 //import AddAppointment from "./components/AddAppointments";
 import DeleteAppointment from "./components/DeleteAppointment";
 import FullCalendarComponent from "./components/FullCalendarComponent";
-
+import UpdateAppointment from "./components/UpdateAppointment";
 export default function Home() {
   
 
@@ -11,6 +11,7 @@ export default function Home() {
   <CheckAppointments/>
   <FullCalendarComponent/>
   <DeleteAppointment/>
+  <UpdateAppointment/>
   
   
   </>

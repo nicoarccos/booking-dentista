@@ -171,57 +171,54 @@ export async function POST(req: Request) {
 
 export async function DELETE(request: Request) {
   try {
-    // Extract the ID and customer_email from the query string
     const { searchParams } = new URL(request.url);
-    const appointmentId = searchParams.get('id');
-    const customerEmail = searchParams.get('customer_email');
+    const appointmentId = searchParams.get("id");
+    const customerEmail = searchParams.get("customer_email");
 
-    // Validate the required parameters
     if (!appointmentId || !customerEmail) {
       return NextResponse.json(
-        { success: false, message: 'Appointment ID and Customer Email are required.' },
+        { success: false, message: "Appointment ID and Customer Email are required." },
         { status: 400 }
       );
     }
 
-    // Delete the row from the database where both the ID and customer_email match
-    const { data, error, count } = await supabase
-      .from('appointments') // Adjust the table name if needed
+    // Delete appointment
+    const { data, error } = await supabase
+      .from("appointments")
       .delete()
-      .eq('id', appointmentId)
-      .eq('customer_email', customerEmail)
-      .select('*', { count: 'exact' }); // Include a count of affected rows
+      .eq("id", appointmentId)
+      .eq("customer_email", customerEmail)
+      .select("*"); // Retrieve deleted rows
+
+    const count = data ? data.length : 0; // Count deleted rows
 
     if (error) {
-      console.error('Error deleting appointment:', error.message);
+      console.error("Error deleting appointment:", error.message);
       return NextResponse.json(
-        { success: false, message: 'Error deleting appointment.', error: error.message },
+        { success: false, message: "Error deleting appointment.", error: error.message },
         { status: 400 }
       );
     }
 
-    // Check if any rows were deleted based on the count
     if (count === 0) {
       return NextResponse.json(
-        { success: false, message: 'No appointment found with the provided ID and email.' },
+        { success: false, message: "No appointment found with the provided ID and email." },
         { status: 404 }
       );
     }
 
-    // Return success response
     return NextResponse.json(
-      { success: true, message: 'Appointment deleted successfully.', deletedAppointment: data },
+      { success: true, message: "Appointment deleted successfully.", deletedAppointment: data },
       { status: 200 }
     );
   } catch (err) {
-    console.error('Unexpected error deleting appointment:', err);
+    console.error("Unexpected error deleting appointment:", err);
     return NextResponse.json(
-      { success: false, message: 'Unexpected error occurred.', error: err },
+      { success: false, message: "Unexpected error occurred.", error: err },
       { status: 500 }
     );
   }
 }
-
 
 
 //updating appointment 
@@ -230,55 +227,57 @@ export async function PATCH(request: Request) {
   try {
     // Extract the ID and customer_email from the query string
     const { searchParams } = new URL(request.url);
-    const appointmentId = searchParams.get('id');
-    const customerEmail = searchParams.get('customer_email');
+    const appointmentId = searchParams.get("id");
+    const customerEmail = searchParams.get("customer_email");
 
-    // Validate the required parameters
     if (!appointmentId || !customerEmail) {
       return NextResponse.json(
-        { success: false, message: 'Appointment ID and Customer Email are required.' },
+        { success: false, message: "Appointment ID and Customer Email are required." },
         { status: 400 }
       );
     }
 
-    // Explicitly set booked to false
-    const booked = false;
+    // Get the update fields from the request body
+    const body = await request.json();
+    if (Object.keys(body).length === 0) {
+      return NextResponse.json(
+        { success: false, message: "At least one field must be provided for update." },
+        { status: 400 }
+      );
+    }
 
-    // Update the 'booked' field for the specific appointment row
-    const { data, error, count } = await supabase
-      .from('appointments') // Adjust the table name if needed
-      .update({ booked }) // Set 'booked' field to false
-      .eq('id', appointmentId) // Match appointment ID
-      .eq('customer_email', customerEmail) // Match customer email
-      .select('*', { count: 'exact' }); // Include a count of affected rows
+    // Perform the update operation
+    const { data, error } = await supabase
+      .from("appointments")
+      .update(body) // Dynamically update fields
+      .eq("id", appointmentId)
+      .eq("customer_email", customerEmail)
+      .select("*");
 
     if (error) {
-      console.error('Error updating appointment:', error.message);
+      console.error("Error updating appointment:", error.message);
       return NextResponse.json(
-        { success: false, message: 'Error updating appointment.', error: error.message },
+        { success: false, message: "Error updating appointment.", error: error.message },
         { status: 400 }
       );
     }
 
-    // Check if any rows were updated based on the count
-    if (count === 0) {
+    if (!data || data.length === 0) {
       return NextResponse.json(
-        { success: false, message: 'No appointment found with the provided ID and email.' },
+        { success: false, message: "No appointment found with the provided ID and email." },
         { status: 404 }
       );
     }
 
-    // Return success response
     return NextResponse.json(
-      { success: true, message: 'Appointment updated successfully.', updatedAppointment: data },
+      { success: true, message: "Appointment updated successfully.", updatedAppointment: data },
       { status: 200 }
     );
   } catch (err) {
-    console.error('Unexpected error updating appointment:', err);
+    console.error("Unexpected error updating appointment:", err);
     return NextResponse.json(
-      { success: false, message: 'Unexpected error occurred.', error: err },
+      { success: false, message: "Unexpected error occurred.", error: err },
       { status: 500 }
     );
   }
 }
-
