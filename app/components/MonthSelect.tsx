@@ -1,5 +1,14 @@
-import SlotGrid from './SlotGrid';
-import { AvailableSlot } from './types';
+import SlotGrid from "./SlotGrid";
+import { AvailableSlot } from "./types"; // Ensure the correct path
+
+// Define the Slot interface if it's not imported
+interface Slot {
+  id: number;
+  date: string;
+  day: string;
+  time_slot: string;
+  booked: boolean; // Ensure this matches what SlotGrid expects
+}
 
 interface MonthSectionProps {
   month: string;
@@ -8,13 +17,19 @@ interface MonthSectionProps {
   onSelectSlot: (slot: AvailableSlot) => void;
 }
 
+const MonthSection = ({ month, slots, selectedSlot, onSelectSlot }: MonthSectionProps) => {
+  // Convert AvailableSlot[] to Slot[]
+  const transformedSlots: Slot[] = slots.map((slot) => ({
+    ...slot,
+    booked: slot.booked, // Convert is_booked to booked
+  }));
 
-
-const MonthSection = ({ month, slots, selectedSlot, onSelectSlot }: MonthSectionProps) => (
-  <div>
-    <h3>{month}</h3>
-    <SlotGrid slots={slots} selectedSlot={selectedSlot} onSelectSlot={onSelectSlot} />
-  </div>
-);
+  return (
+    <div>
+      <h3>{month}</h3>
+      <SlotGrid slots={transformedSlots} selectedSlot={selectedSlot} onSelectSlot={onSelectSlot} />
+    </div>
+  );
+};
 
 export default MonthSection;
