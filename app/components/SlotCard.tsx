@@ -19,17 +19,17 @@ interface SlotCardProps {
       style={{
         padding: "10px",
         border: isSelected ? "2px solid blue" : "1px solid #ccc",
-        backgroundColor: slot.is_booked ? "#f8d7da" : "#d4edda",
-        cursor: slot.is_booked ? "not-allowed" : "pointer",
-        color: slot.is_booked ? "#721c24" : "#155724",
+        backgroundColor: slot.booked ? "#f8d7da" : "#d4edda",
+        cursor: slot.booked ? "not-allowed" : "pointer",
+        color: slot.booked ? "#721c24" : "#155724",
       }}
-      disabled={slot.is_booked}
+      disabled={slot.booked}
     >
       <strong>{slot.date}</strong>
       <br />
       {slot.day} - {slot.time_slot}
       <br />
-      {slot.is_booked ? "Unavailable" : "Available"}
+      {slot.booked ? "Unavailable" : "Available"}
     </button>
   );
   
