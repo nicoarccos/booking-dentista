@@ -2,12 +2,22 @@
 
 import { useState } from "react";
 
+interface UpdateFields {
+  date?: string;
+  day?: string;
+  time_slot?: string;
+  service?: string;
+  notes?: string;
+}
+
 const UpdateAppointment = () => {
   const [appointmentId, setAppointmentId] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
   const [date, setDate] = useState("");
-  const [time, setTime] = useState("");
-  const [description, setDescription] = useState("");
+  const [day, setDay] = useState("");
+  const [timeSlot, setTimeSlot] = useState("");
+  const [service, setService] = useState("");
+  const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -15,29 +25,43 @@ const UpdateAppointment = () => {
     setLoading(true);
     setMessage("");
 
-    if (!appointmentId || !customerEmail || !date || !time || !description) {
-      setMessage("❌ All fields are required.");
+    if (!appointmentId || !customerEmail) {
+      setMessage("❌ Appointment ID and Customer Email are required.");
+      setLoading(false);
+      return;
+    }
+
+    // Prepare update payload
+    const updateFields: UpdateFields = {};
+    if (date) updateFields.date = date;
+    if (day) updateFields.day = day;
+    if (timeSlot) updateFields.time_slot = timeSlot;
+    if (service) updateFields.service = service;
+    if (notes) updateFields.notes = notes;
+
+    if (Object.keys(updateFields).length === 0) {
+      setMessage("❌ At least one field must be updated.");
       setLoading(false);
       return;
     }
 
     try {
       const response = await fetch(
-        `/api/update-appointment?id=${appointmentId}&customer_email=${customerEmail}`,
+        `/api/appointments?id=${appointmentId}&customer_email=${customerEmail}`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ date, time, description }),
+          body: JSON.stringify(updateFields),
         }
       );
 
-      const result = await response.json();
+      const result: { success: boolean; message?: string } = await response.json();
       if (result.success) {
         setMessage("✅ Appointment updated successfully!");
       } else {
-        setMessage(`❌ ${result.message}`);
+        setMessage(`❌ ${result.message || "Failed to update appointment."}`);
       }
-    } catch (error: unknown) {
+    } catch (error) {
       if (error instanceof Error) {
         setMessage(`❌ ${error.message}`);
       } else {
@@ -55,58 +79,76 @@ const UpdateAppointment = () => {
       </h2>
 
       <div className="space-y-4">
-        {/* Appointment ID */}
         <input
           type="text"
           placeholder="Appointment ID"
           value={appointmentId}
           onChange={(e) => setAppointmentId(e.target.value)}
           className="w-full p-2 border rounded-md focus:outline-primary"
+          disabled={loading}
         />
 
-        {/* Customer Email */}
         <input
           type="email"
           placeholder="Customer Email"
           value={customerEmail}
           onChange={(e) => setCustomerEmail(e.target.value)}
           className="w-full p-2 border rounded-md focus:outline-primary"
+          disabled={loading}
         />
 
-        {/* Date Picker */}
         <input
           type="date"
           value={date}
           onChange={(e) => setDate(e.target.value)}
           className="w-full p-2 border rounded-md focus:outline-primary"
+          disabled={loading}
         />
 
-        {/* Time Picker */}
+        <input
+          type="text"
+          placeholder="Day (e.g., Monday)"
+          value={day}
+          onChange={(e) => setDay(e.target.value)}
+          className="w-full p-2 border rounded-md focus:outline-primary"
+          disabled={loading}
+        />
+
         <input
           type="time"
-          value={time}
-          onChange={(e) => setTime(e.target.value)}
+          value={timeSlot}
+          onChange={(e) => setTimeSlot(e.target.value)}
           className="w-full p-2 border rounded-md focus:outline-primary"
+          disabled={loading}
         />
 
-        {/* Description */}
+        <input
+          type="text"
+          placeholder="Service"
+          value={service}
+          onChange={(e) => setService(e.target.value)}
+          className="w-full p-2 border rounded-md focus:outline-primary"
+          disabled={loading}
+        />
+
         <textarea
-          placeholder="Describe the service required..."
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Additional notes..."
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
           className="w-full p-2 border rounded-md focus:outline-primary h-24"
+          disabled={loading}
         />
 
-        {/* Submit Button */}
         <button
           onClick={handleUpdate}
-          className="w-full bg-primary text-white py-2 rounded-md hover:bg-opacity-90 transition"
+          className={`w-full py-2 rounded-md transition ${
+            loading ? "bg-gray-400 cursor-not-allowed" : "bg-secondary text-black hover:bg-opacity-90"
+          }`}
           disabled={loading}
         >
           {loading ? "Updating..." : "Update Appointment"}
         </button>
 
-        {/* Status Message */}
         {message && (
           <p className={`text-center mt-2 ${message.includes("✅") ? "text-green-600" : "text-red-600"}`}>
             {message}

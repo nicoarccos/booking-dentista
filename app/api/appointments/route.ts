@@ -223,9 +223,12 @@ export async function DELETE(request: Request) {
 
 //updating appointment 
 
+
+
+
 export async function PATCH(request: Request) {
   try {
-    // Extract the ID and customer_email from the query string
+    // Extract ID and customer email from query string
     const { searchParams } = new URL(request.url);
     const appointmentId = searchParams.get("id");
     const customerEmail = searchParams.get("customer_email");
@@ -239,44 +242,118 @@ export async function PATCH(request: Request) {
 
     // Get the update fields from the request body
     const body = await request.json();
-    if (Object.keys(body).length === 0) {
+    const updateFields: Partial<Record<"service" | "notes", string>> = {};
+    if (body.service) updateFields.service = body.service;
+    if (body.notes) updateFields.notes = body.notes;
+
+    // Check if we are updating date/time
+    const isUpdatingDateOrTime = body.date || body.time_slot;
+
+    if (Object.keys(updateFields).length === 0 && !isUpdatingDateOrTime) {
       return NextResponse.json(
-        { success: false, message: "At least one field must be provided for update." },
+        { success: false, message: "Only 'service', 'notes', 'date', or 'time_slot' can be updated." },
         { status: 400 }
       );
     }
 
-    // Perform the update operation
-    const { data, error } = await supabase
+    // Fetch the existing appointment details (including schedule_id)
+    const { data: appointmentData, error: appointmentError } = await supabase
       .from("appointments")
-      .update(body) // Dynamically update fields
+      .select("schedule_id")
       .eq("id", appointmentId)
       .eq("customer_email", customerEmail)
-      .select("*");
+      .single();
 
-    if (error) {
-      console.error("Error updating appointment:", error.message);
-      return NextResponse.json(
-        { success: false, message: "Error updating appointment.", error: error.message },
-        { status: 400 }
-      );
-    }
-
-    if (!data || data.length === 0) {
+    if (appointmentError || !appointmentData) {
       return NextResponse.json(
         { success: false, message: "No appointment found with the provided ID and email." },
         { status: 404 }
       );
     }
 
+    const scheduleId: string = appointmentData.schedule_id;
+
+    // If updating date/time, fetch the current slot details
+    if (isUpdatingDateOrTime) {
+      const { data: oldSchedule, error: oldScheduleError } = await supabase
+        .from("appointments_schedule")
+        .select("date, time_slot, is_booked")
+        .eq("id", scheduleId)
+        .single();
+
+      if (oldScheduleError || !oldSchedule) {
+        return NextResponse.json(
+          { success: false, message: "Existing schedule not found." },
+          { status: 404 }
+        );
+      }
+
+      // Mark the OLD slot as available
+      await supabase
+        .from("appointments_schedule")
+        .update({ is_booked: false })
+        .eq("id", scheduleId);
+
+      // Find the new schedule ID for the requested date and time
+      const { data: newSchedule, error: newScheduleError } = await supabase
+        .from("appointments_schedule")
+        .select("id, is_booked")
+        .eq("date", body.date)
+        .eq("time_slot", body.time_slot)
+        .single();
+
+      if (newScheduleError || !newSchedule) {
+        return NextResponse.json(
+          { success: false, message: "Selected time slot is not available." },
+          { status: 400 }
+        );
+      }
+
+      if (newSchedule.is_booked) {
+        return NextResponse.json(
+          { success: false, message: "The selected time slot is already booked." },
+          { status: 400 }
+        );
+      }
+
+      // Update the new slot as booked
+      await supabase
+        .from("appointments_schedule")
+        .update({ is_booked: true })
+        .eq("id", newSchedule.id);
+
+      // Update appointment to link to the new schedule
+      await supabase
+        .from("appointments")
+        .update({ schedule_id: newSchedule.id })
+        .eq("id", appointmentId);
+    }
+
+    // If updating service or notes, apply the update to the appointments table
+    if (Object.keys(updateFields).length > 0) {
+      const { error: updateError } = await supabase
+        .from("appointments")
+        .update(updateFields)
+        .eq("id", appointmentId)
+        .eq("customer_email", customerEmail);
+
+      if (updateError) {
+        console.error("Error updating appointment:", updateError.message);
+        return NextResponse.json(
+          { success: false, message: "Error updating appointment.", error: updateError.message },
+          { status: 400 }
+        );
+      }
+    }
+
     return NextResponse.json(
-      { success: true, message: "Appointment updated successfully.", updatedAppointment: data },
+      { success: true, message: "Appointment updated successfully." },
       { status: 200 }
     );
   } catch (err) {
     console.error("Unexpected error updating appointment:", err);
     return NextResponse.json(
-      { success: false, message: "Unexpected error occurred.", error: err },
+      { success: false, message: "Unexpected error occurred.", error: String(err) },
       { status: 500 }
     );
   }
