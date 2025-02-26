@@ -162,6 +162,10 @@ export async function POST(req: Request) {
 
 
 
+
+
+
+
 //Delete appointment request
 
 
@@ -207,8 +211,28 @@ export async function DELETE(request: Request) {
       );
     }
 
+    // Send email notification
+    const emailResponse = await sendEmail({
+      to: customerEmail,
+      subject: "Your Appointment Has Been Cancelled",
+      text: `Hello,\n\nYour appointment (ID: ${appointmentId}) has been successfully cancelled. If this was a mistake, please contact us to reschedule.\n\nBest regards,\nYour Company Name`,
+      html: `
+        <h2>Appointment Cancelled</h2>
+        <p>Dear Customer,</p>
+        <p>Your appointment (ID: <b>${appointmentId}</b>) has been successfully cancelled.</p>
+        <p>If this was a mistake, please contact us to reschedule.</p>
+        <br/>
+        <p>Best regards,</p>
+        <p>Your Company Name</p>
+      `,
+    });
+
+    if (!emailResponse.success) {
+      console.error("Error sending cancellation email:", emailResponse.error);
+    }
+
     return NextResponse.json(
-      { success: true, message: "Appointment deleted successfully.", deletedAppointment: data },
+      { success: true, message: "Appointment deleted successfully. Email sent.", deletedAppointment: data },
       { status: 200 }
     );
   } catch (err) {
@@ -219,6 +243,10 @@ export async function DELETE(request: Request) {
     );
   }
 }
+
+
+
+
 
 
 //updating appointment 
@@ -246,7 +274,6 @@ export async function PATCH(request: Request) {
     if (body.service) updateFields.service = body.service;
     if (body.notes) updateFields.notes = body.notes;
 
-    // Check if we are updating date/time
     const isUpdatingDateOrTime = body.date || body.time_slot;
 
     if (Object.keys(updateFields).length === 0 && !isUpdatingDateOrTime) {
@@ -256,7 +283,7 @@ export async function PATCH(request: Request) {
       );
     }
 
-    // Fetch the existing appointment details (including schedule_id)
+    // Fetch the existing appointment details
     const { data: appointmentData, error: appointmentError } = await supabase
       .from("appointments")
       .select("schedule_id")
@@ -273,63 +300,41 @@ export async function PATCH(request: Request) {
 
     const scheduleId: string = appointmentData.schedule_id;
 
-    // If updating date/time, fetch the current slot details
+    // If updating date/time, fetch and update schedule
     if (isUpdatingDateOrTime) {
-      const { data: oldSchedule, error: oldScheduleError } = await supabase
-        .from("appointments_schedule")
-        .select("date, time_slot, is_booked")
-        .eq("id", scheduleId)
-        .single();
+      
 
-      if (oldScheduleError || !oldSchedule) {
-        return NextResponse.json(
-          { success: false, message: "Existing schedule not found." },
-          { status: 404 }
-        );
-      }
-
-      // Mark the OLD slot as available
       await supabase
         .from("appointments_schedule")
         .update({ is_booked: false })
         .eq("id", scheduleId);
 
-      // Find the new schedule ID for the requested date and time
-      const { data: newSchedule, error: newScheduleError } = await supabase
+      const { data: newSchedule } = await supabase
         .from("appointments_schedule")
         .select("id, is_booked")
         .eq("date", body.date)
         .eq("time_slot", body.time_slot)
         .single();
 
-      if (newScheduleError || !newSchedule) {
+      if (!newSchedule || newSchedule.is_booked) {
         return NextResponse.json(
-          { success: false, message: "Selected time slot is not available." },
+          { success: false, message: "The selected time slot is unavailable." },
           { status: 400 }
         );
       }
 
-      if (newSchedule.is_booked) {
-        return NextResponse.json(
-          { success: false, message: "The selected time slot is already booked." },
-          { status: 400 }
-        );
-      }
-
-      // Update the new slot as booked
       await supabase
         .from("appointments_schedule")
         .update({ is_booked: true })
         .eq("id", newSchedule.id);
 
-      // Update appointment to link to the new schedule
       await supabase
         .from("appointments")
         .update({ schedule_id: newSchedule.id })
         .eq("id", appointmentId);
     }
 
-    // If updating service or notes, apply the update to the appointments table
+    // If updating service or notes, apply the update
     if (Object.keys(updateFields).length > 0) {
       const { error: updateError } = await supabase
         .from("appointments")
@@ -338,7 +343,6 @@ export async function PATCH(request: Request) {
         .eq("customer_email", customerEmail);
 
       if (updateError) {
-        console.error("Error updating appointment:", updateError.message);
         return NextResponse.json(
           { success: false, message: "Error updating appointment.", error: updateError.message },
           { status: 400 }
@@ -346,12 +350,45 @@ export async function PATCH(request: Request) {
       }
     }
 
+    // ✅ SEND EMAIL NOTIFICATION
+    const emailSubject = "Your Appointment Has Been Updated";
+    const emailText = `
+      Hello, your appointment has been successfully updated.\n
+      ${body.date ? `New Date: ${body.date}` : ""}
+      ${body.time_slot ? `New Time: ${body.time_slot}` : ""}
+      ${body.service ? `Service: ${body.service}` : ""}
+      ${body.notes ? `Notes: ${body.notes}` : ""}
+      \nThank you!
+    `;
+    const emailHtml = `
+      <h2>Appointment Updated Successfully</h2>
+      <p>Hello,</p>
+      <p>Your appointment has been successfully updated.</p>
+      <ul>
+        ${body.date ? `<li><strong>New Date:</strong> ${body.date}</li>` : ""}
+        ${body.time_slot ? `<li><strong>New Time:</strong> ${body.time_slot}</li>` : ""}
+        ${body.service ? `<li><strong>Service:</strong> ${body.service}</li>` : ""}
+        ${body.notes ? `<li><strong>Notes:</strong> ${body.notes}</li>` : ""}
+      </ul>
+      <p>Thank you!</p>
+    `;
+
+    const emailResponse = await sendEmail({
+      to: customerEmail,
+      subject: emailSubject,
+      text: emailText,
+      html: emailHtml,
+    });
+
+    if (!emailResponse.success) {
+      console.error("Email sending failed:", emailResponse.error);
+    }
+
     return NextResponse.json(
-      { success: true, message: "Appointment updated successfully." },
+      { success: true, message: "Appointment updated successfully. Notification sent!" },
       { status: 200 }
     );
   } catch (err) {
-    console.error("Unexpected error updating appointment:", err);
     return NextResponse.json(
       { success: false, message: "Unexpected error occurred.", error: String(err) },
       { status: 500 }

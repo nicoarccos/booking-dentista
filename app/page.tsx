@@ -10,8 +10,8 @@ export default function Home() {
   <h1>Supabase Connection Test</h1>
   <CheckAppointments/>
   <FullCalendarComponent/>
-  <DeleteAppointment/>
   <UpdateAppointment/>
+  <DeleteAppointment/>
   
   
   </>
