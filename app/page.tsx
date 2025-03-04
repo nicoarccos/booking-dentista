@@ -3,15 +3,18 @@ import CheckAppointments from "./components/CheckAppointment";
 import DeleteAppointment from "./components/DeleteAppointment";
 import FullCalendarComponent from "./components/FullCalendarComponent";
 import UpdateAppointment from "./components/UpdateAppointment";
+import Layout from "./components/Layout";
 export default function Home() {
   
 
   return <> 
-  <h1>Supabase Connection Test</h1>
+  <Layout>
+  <h1>Please select a date to start booking an appointment</h1>
   <CheckAppointments/>
   <FullCalendarComponent/>
   <UpdateAppointment/>
   <DeleteAppointment/>
+  </Layout>
   
   
   </>

@@ -59,7 +59,7 @@ const DeleteAppointment = () => {
 
   return (
     <div className="flex flex-col items-center bg-white">
-      <div className="bg-red-600 p-6 rounded-lg shadow-xl w-full max-w-lg mt-4">
+      <div className="bg-red-500 p-6 rounded-lg shadow-xl w-full max-w-lg mt-4">
         <h2 className="text-2xl font-bold text-center text-black mb-4">
           Delete Appointment
         </h2>

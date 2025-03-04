@@ -89,7 +89,7 @@ const AddAppointment: React.FC<AddAppointmentProps> = ({ selectedDate }) => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+    <div className="flex justify-center items-center min-h-screen bg-white-100">
       <div className="bg-white p-6 rounded-2xl shadow-lg w-full max-w-lg">
         <h1 className="text-xl font-semibold text-green-700 text-center mb-4">
           Complete the following information to make an appointment

@@ -71,7 +71,7 @@ const UpdateAppointment = () => {
 
   return (
     <div className="flex flex-col items-center bg-white">
-      <div className="max-w-lg w-full bg-orange-500 shadow-lg rounded-lg p-6 mt-4">
+      <div className="max-w-lg w-full bg-orange-300 shadow-lg rounded-lg p-6 mt-4">
         <h2 className="text-2xl font-bold text-center text-black mb-4">
           Update Appointment
         </h2>
