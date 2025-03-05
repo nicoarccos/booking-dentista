@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import LoginButton from "./LoginButton";
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
@@ -10,6 +11,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         <div className="absolute top-1/2 transform -translate-y-1/2 w-24 h-24 bg-gray-300 rounded-full flex items-center justify-center shadow-md">
           <span className="font-bold">Logo</span>
         </div>
+        <LoginButton/>
       </nav>
 
       {/* Secondary Navbar */}
