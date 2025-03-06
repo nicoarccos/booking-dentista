@@ -13,7 +13,7 @@ export default function Home() {
   <Layout>
    <MyImage/>
    
-  <h1>Please select a date to start booking an appointment</h1>
+   <h1 className="text-1l md:text-4xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-green-500 to-blue-500 mt-6">Please select a date to start booking an appointment</h1>
   <CheckAppointments/>
   <FullCalendarComponent/>
   <UpdateAppointment/>
