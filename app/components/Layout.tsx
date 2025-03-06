@@ -2,6 +2,7 @@ import React from "react";
 import Link from "next/link";
 import LoginButton from "./LoginButton";
 
+
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <div className="flex flex-col min-h-screen">
@@ -23,6 +24,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           <Link href="/admin" className="hover:text-purple-600">Admin</Link>
         </div>
       </div>
+      
 
       {/* Main Content */}
       <main className="flex-1 p-6">{children}</main>

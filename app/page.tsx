@@ -5,12 +5,14 @@ import FullCalendarComponent from "./components/FullCalendarComponent";
 import UpdateAppointment from "./components/UpdateAppointment";
 import Layout from "./components/Layout";
 import MyImage from "./components/ExampleImg";
+
 export default function Home() {
   
 
   return <> 
   <Layout>
    <MyImage/>
+   
   <h1>Please select a date to start booking an appointment</h1>
   <CheckAppointments/>
   <FullCalendarComponent/>
