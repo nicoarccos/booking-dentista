@@ -2,6 +2,7 @@ import { supabase } from '@/app/utils/supabaseClient';
 import { NextResponse } from 'next/server';
 import { sendEmail } from '@/app/utils/sendEmail';
 
+
 //get all the slots
 
 

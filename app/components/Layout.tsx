@@ -1,10 +1,12 @@
 import React from "react";
 import Link from "next/link";
 import LoginButton from "./LoginButton";
+import { AuthProvider } from "../context/AuthContext";
 
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
+    <AuthProvider>
     <div className="flex flex-col min-h-screen">
       {/* Navbar */}
       <nav className="bg-purple-600 p-20 relative flex justify-center items-center"> {/* Increased height to fully display the logo */}
@@ -54,6 +56,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         </div>
       </footer>
     </div>
+    </AuthProvider>
   );
 };
 
