@@ -21,8 +21,8 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       <div className="bg-gray-300 py-3 rounded-b-lg">
         <div className="flex justify-center space-x-8 font-semibold">
           <Link href="/" className="hover:text-purple-600">Home</Link>
-          <Link href="/about" className="hover:text-purple-600">About us</Link>
-          <Link href="/contact" className="hover:text-purple-600">Contact us</Link>
+          <Link href="/aboutUs" className="hover:text-purple-600">About us</Link>
+          <Link href="/contactUs" className="hover:text-purple-600">Contact us</Link>
           <Link href="/admin" className="hover:text-purple-600">Admin</Link>
         </div>
       </div>

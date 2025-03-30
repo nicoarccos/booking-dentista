@@ -25,7 +25,7 @@ export default function CheckAppointments() {
     fetchAppointments();
   }, []); // Empty dependency array means this runs once when the component mounts
 
-  return <div>Check the console for fetched appointments!</div>;
+  return <div></div>;
 }
 
 
