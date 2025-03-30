@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useContext } from 'react';
-import { AuthContext } from '@/app/context/AuthContext'; // Import the AuthContext
+import { AuthContext } from '@/app/context/AuthContext';
 
 interface Appointment {
   id: number;
@@ -10,27 +10,33 @@ interface Appointment {
   customer_email: string;
   service: string;
   notes: string;
-  date: string;
+  date: string; // Assuming date is in 'YYYY-MM-DD' format
   time_slot: string;
 }
 
 const AppointmentsTable = () => {
-  const { isLoggedIn } = useContext(AuthContext); // Access login status from context
+  const { isLoggedIn } = useContext(AuthContext);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
-  const rowsPerPage = 10; // Show 10 rows per page
+  const rowsPerPage = 10;
+  const [searchDate, setSearchDate] = useState(''); // State for search date
 
   useEffect(() => {
     if (!isLoggedIn) {
-      return; // Don't fetch appointments if not logged in
+      return;
     }
 
     const fetchAppointments = async () => {
       try {
         const response = await fetch('/api/appointmentstable');
-        const data = await response.json();
-        setAppointments(data.reverse()); // Show latest appointments first
+        const data: Appointment[] = await response.json();
+
+        const sortedAppointments = data.sort((a, b) => {
+          return new Date(b.date).getTime() - new Date(a.date).getTime();
+        });
+
+        setAppointments(sortedAppointments);
       } catch (error) {
         console.error('Error fetching appointments:', error);
       } finally {
@@ -39,28 +45,43 @@ const AppointmentsTable = () => {
     };
 
     fetchAppointments();
-  }, [isLoggedIn]); // Fetch appointments if login status changes
+  }, [isLoggedIn]);
 
-  // If the user is not logged in, show a message
   if (!isLoggedIn) {
     return <p className="text-center text-red-500">Please log in to view your appointments.</p>;
   }
 
-  // Calculate the current appointments to display
+  // Filter appointments based on search date
+  const filteredAppointments = appointments.filter((appt) =>
+    appt.date.includes(searchDate) // Check if date includes search string
+  );
+
   const startIndex = currentPage * rowsPerPage;
-  const currentAppointments = appointments.slice(startIndex, startIndex + rowsPerPage);
+  const currentAppointments = filteredAppointments.slice(startIndex, startIndex + rowsPerPage);
 
   return (
     <div className="p-6">
       <h2 className="text-xl font-bold mb-4 text-center">📅 Appointments</h2>
 
+      {/* Search Bar */}
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="Search by Date (YYYY-MM-DD)"
+          value={searchDate}
+          onChange={(e) => setSearchDate(e.target.value)}
+          className="p-2 border rounded w-full"
+        />
+      </div>
+
       {loading ? (
         <p className="text-center text-gray-500">Loading appointments...</p>
-      ) : appointments.length === 0 ? (
+      ) : filteredAppointments.length === 0 ? (
         <p className="text-center text-red-500">No appointments found.</p>
       ) : (
         <div className="overflow-x-auto">
           <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
+            {/* ... (table head and body remain the same) ... */}
             <thead className="bg-blue-500 text-white">
               <tr>
                 <th className="py-2 px-4 text-left">ID</th>
@@ -89,7 +110,7 @@ const AppointmentsTable = () => {
             </tbody>
           </table>
 
-          {/* Pagination Controls */}
+          {/* ... (pagination remains the same) ... */}
           <div className="flex justify-between mt-4">
             <button
               onClick={() => setCurrentPage(currentPage - 1)}
@@ -102,9 +123,9 @@ const AppointmentsTable = () => {
             </button>
             <button
               onClick={() => setCurrentPage(currentPage + 1)}
-              disabled={startIndex + rowsPerPage >= appointments.length}
+              disabled={startIndex + rowsPerPage >= filteredAppointments.length}
               className={`px-4 py-2 rounded-lg ${
-                startIndex + rowsPerPage >= appointments.length
+                startIndex + rowsPerPage >= filteredAppointments.length
                   ? 'bg-gray-300 cursor-not-allowed'
                   : 'bg-blue-500 hover:bg-blue-600 text-white'
               }`}
