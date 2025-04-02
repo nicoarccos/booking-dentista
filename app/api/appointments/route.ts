@@ -27,9 +27,9 @@ export async function GET(request: Request) {
       );
     }
 
-    // Obtener horarios disponibles de la tabla bookingsrestorant
+    // Obtener horarios disponibles de la tabla bookingdentis
     const { data: appointments, error } = await supabase
-      .from('bookingsrestorant')
+      .from('bookingdentis')
       .select('*')
       .eq('date', date)
       .eq('booked', false)

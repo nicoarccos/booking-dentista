@@ -82,28 +82,15 @@ const AddAppointment: React.FC<AddAppointmentProps> = ({ selectedDate }) => {
   ];
 
   const timeSlots: TimeSlot[] = [
+    { time: '09:00', id: 900 },
+    { time: '10:00', id: 1000 },
+    { time: '11:00', id: 1100 },
     { time: '12:00', id: 1200 },
-    { time: '12:30', id: 1230 },
     { time: '13:00', id: 1300 },
-    { time: '13:30', id: 1330 },
     { time: '14:00', id: 1400 },
-    { time: '14:30', id: 1430 },
     { time: '15:00', id: 1500 },
-    { time: '15:30', id: 1530 },
     { time: '16:00', id: 1600 },
-    { time: '16:30', id: 1630 },
-    { time: '17:00', id: 1700 },
-    { time: '17:30', id: 1730 },
-    { time: '18:00', id: 1800 },
-    { time: '18:30', id: 1830 },
-    { time: '19:00', id: 1900 },
-    { time: '19:30', id: 1930 },
-    { time: '20:00', id: 2000 },
-    { time: '20:30', id: 2030 },
-    { time: '21:00', id: 2100 },
-    { time: '21:30', id: 2130 },
-    { time: '22:00', id: 2200 },
-    { time: '22:30', id: 2230 }
+    { time: '17:00', id: 1700 }
   ];
 
   useEffect(() => {
