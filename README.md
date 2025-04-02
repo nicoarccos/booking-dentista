@@ -1,36 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Booking Dentista
 
-## Getting Started
+Sistema de reservas para clínica dental.
 
-First, run the development server:
+## Configuración del Proyecto
 
+1. Clona el repositorio:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/nicoarccos/booking-dentista.git
+cd booking-dentista
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Instala las dependencias:
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Configura las variables de entorno:
+   - Crea un archivo `.env.local` en la raíz del proyecto
+   - Copia el contenido de `.env.example`
+   - Reemplaza los valores con tus credenciales:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```env
+# Supabase Configuration
+NEXT_PUBLIC_SUPABASE_URL=https://syinjziavwuilkopmlha.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN5aW5qemlhdnd1aWxrb3BtbGhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzM3NzQ2NDgsImV4cCI6MjA0OTM1MDY0OH0.GfnenUYRyztokw8m742StO5aMxQw7DpUO5k_x55mQtw
 
-## Learn More
+# Email Configuration
+EMAIL_USER=joakkochatgpt@gmail.com
+EMAIL_PASSWORD=yfyw slhl ddye hqmx
 
-To learn more about Next.js, take a look at the following resources:
+# JWT Configuration
+JWT_SECRET=your_super_secret_key
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+4. Inicia el servidor de desarrollo:
+```bash
+npm run dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Despliegue en Vercel
 
-## Deploy on Vercel
+1. Crea una cuenta en [Vercel](https://vercel.com) si aún no tienes una
+2. Conecta tu repositorio de GitHub
+3. En la configuración del proyecto en Vercel, agrega las variables de entorno mencionadas arriba
+4. ¡Listo! Tu aplicación estará desplegada y funcionando
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Características
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Reserva de citas dentales
+- Selección de fecha y hora
+- Confirmación por email
+- Panel de administración
+- Gestión de horarios disponibles
+
+## Tecnologías Utilizadas
+
+- Next.js 13
+- React
+- Tailwind CSS
+- Supabase
+- TypeScript
+- Node.js
