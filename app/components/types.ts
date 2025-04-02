@@ -3,5 +3,10 @@ export interface AvailableSlot {
   date: string;
   day: string;
   time_slot: string;
-  booked: boolean; // Renamed from is_booked to match Slot
+  booked: boolean;
+}
+
+export interface TimeSlot {
+  time: string;
+  id: number;
 }
